@@ -1,4 +1,4 @@
-const GameBoard = () => {
+function GameBoard() {
   const board = Array(9).fill(null);
 
   const placeMarker = (position, marker) => {
@@ -18,12 +18,15 @@ const GameBoard = () => {
     board = Array(9).fill(null);
   };
 
-  return { board, placeMarker, checkWin, resetBoard };
-};
+  //return { board, placeMarker, checkWin, resetBoard };
+}
 
-const Player = (name, marker) => {
-  return { name, marker };
-};
-GameBoard.placeMarker
-console.log(GameBoard.board)
+function Player(name, marker) {
+  this.Name = name;
+  this.Marker = marker;
+}
+let Migdood = new Player("Migdood", "X");
+GameBoard();
+console.log(GameManager.board);
+
 const GameManager = {};
