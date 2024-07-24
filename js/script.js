@@ -6,7 +6,7 @@ function getRandomInt(min, max) {
 
 function gameBoard() {
   let board = [];
-  let Winner = false;
+  let winner = false;
 
   const placeMarker = (position, marker) => {
     if (board[position] == null) {
@@ -23,81 +23,83 @@ function gameBoard() {
 
   const checkWin = () => {
     let winningMarker = ["X", "O"];
-    if (Winner == false) {
+    if (winner == false) {
       for (let i = 0; i < winningMarker.length; i++) {
-        if (
-          board[0] == winningMarker[i] &&
-          board[1] == winningMarker[i] &&
-          board[2] == winningMarker[i]
-        ) {
-          console.log(winningMarker[i] + " is the winner.");
-          Winner = true;
-          return i;
-        } else if (
-          board[3] == winningMarker[i] &&
-          board[4] == winningMarker[i] &&
-          board[5] == winningMarker[i]
-        ) {
-          console.log(winningMarker[i] + " is the winner.");
-          Winner = true;
-          return i;
-        } else if (
-          board[6] == winningMarker[i] &&
-          board[7] == winningMarker[i] &&
-          board[8] == winningMarker[i]
-        ) {
-          console.log(winningMarker[i] + " is the winner.");
-          Winner = true;
-          return i;
-        } else if (
-          board[0] == winningMarker[i] &&
-          board[3] == winningMarker[i] &&
-          board[6] == winningMarker[i]
-        ) {
-          console.log(winningMarker[i] + " is the winner.");
-          Winner = true;
-          return i;
-        } else if (
-          board[1] == winningMarker[i] &&
-          board[4] == winningMarker[i] &&
-          board[7] == winningMarker[i]
-        ) {
-          console.log(winningMarker[i] + " is the winner.");
-          Winner = true;
-          return i;
-        } else if (
-          board[2] == winningMarker[i] &&
-          board[5] == winningMarker[i] &&
-          board[8] == winningMarker[i]
-        ) {
-          console.log(winningMarker[i] + " is the winner.");
-          Winner = true;
-          return i;
-        } else if (
-          board[0] == winningMarker[i] &&
-          board[4] == winningMarker[i] &&
-          board[8] == winningMarker[i]
-        ) {
-          console.log(winningMarker[i] + " is the winner.");
-          Winner = true;
-          return i;
-        } else if (
-          board[2] == winningMarker[i] &&
-          board[4] == winningMarker[i] &&
-          board[6] == winningMarker[i]
-        ) {
-          console.log(winningMarker[i] + " is the winner.");
-          Winner = true;
-          return i;
-        } else {
-          checkDraw();
+        if (winner == false) {
+          if (
+            board[0] == winningMarker[i] &&
+            board[1] == winningMarker[i] &&
+            board[2] == winningMarker[i]
+          ) {
+            console.log(winningMarker[i] + " is the winner.");
+            winner = true;
+            return i;
+          } else if (
+            board[3] == winningMarker[i] &&
+            board[4] == winningMarker[i] &&
+            board[5] == winningMarker[i]
+          ) {
+            console.log(winningMarker[i] + " is the winner.");
+            winner = true;
+            return i;
+          } else if (
+            board[6] == winningMarker[i] &&
+            board[7] == winningMarker[i] &&
+            board[8] == winningMarker[i]
+          ) {
+            console.log(winningMarker[i] + " is the winner.");
+            winner = true;
+            return i;
+          } else if (
+            board[0] == winningMarker[i] &&
+            board[3] == winningMarker[i] &&
+            board[6] == winningMarker[i]
+          ) {
+            console.log(winningMarker[i] + " is the winner.");
+            winner = true;
+            return i;
+          } else if (
+            board[1] == winningMarker[i] &&
+            board[4] == winningMarker[i] &&
+            board[7] == winningMarker[i]
+          ) {
+            console.log(winningMarker[i] + " is the winner.");
+            winner = true;
+            return i;
+          } else if (
+            board[2] == winningMarker[i] &&
+            board[5] == winningMarker[i] &&
+            board[8] == winningMarker[i]
+          ) {
+            console.log(winningMarker[i] + " is the winner.");
+            winner = true;
+            return i;
+          } else if (
+            board[0] == winningMarker[i] &&
+            board[4] == winningMarker[i] &&
+            board[8] == winningMarker[i]
+          ) {
+            console.log(winningMarker[i] + " is the winner.");
+            winner = true;
+            return i;
+          } else if (
+            board[2] == winningMarker[i] &&
+            board[4] == winningMarker[i] &&
+            board[6] == winningMarker[i]
+          ) {
+            console.log(winningMarker[i] + " is the winner.");
+            winner = true;
+            return i;
+          } else {
+            checkDraw();
+          }
         }
       }
     }
   };
 
   const checkDraw = () => {
-    if (!board.includes(null) && Winner != true) {
+    if (!board.includes(null) && winner != true) {
       return "DRAW";
     } else {
       return console.log("Keep Playing");
@@ -109,9 +111,8 @@ function gameBoard() {
     console.log("Board has been reset.");
     console.log(board);
   };
-  resetBoard();
 
-  return { board, placeMarker, checkWin, resetBoard };
+  return { board, placeMarker, checkWin, resetBoard, winner };
 }
 
 function Player(name, marker) {
@@ -127,7 +128,8 @@ const gameManager = () => {
   };
 
   function playerTurn() {
-    if (GameBoard.Winner != true) {
+    console.log("Did anyone win: " + GameBoard.winner);
+    if (GameBoard.winner == false) {
       let playerChoice = prompt("Where do you want to place your Marker?");
       if (playerChoice === "reset") {
         let confirmation = prompt("Are you sure you wish to RESET?", "y");
@@ -140,11 +142,18 @@ const gameManager = () => {
         players.bot = true;
         turnManager();
       }
+    } else {
+      console.log("END OF GAME ___________");
     }
   }
 
   function botTurn() {
-    GameBoard.placeMarker(getRandomInt(0, 8), "O");
+    let playBotTurn = GameBoard.placeMarker(getRandomInt(0, 8), "O");
+
+    if (playBotTurn == false) {
+      console.log("Playing again since picked a full place last time.");
+      playBotTurn;
+    }
     players.bot = false;
     players.player = true;
     turnManager();
@@ -158,6 +167,7 @@ const gameManager = () => {
   }
 
   function startGame() {
+    GameBoard.resetBoard();
     turnManager();
   }
   return { playerTurn, botTurn, turnManager, startGame };
