@@ -1,5 +1,6 @@
 const txtField = document.getElementById("textField");
 const btnSubmit = document.getElementById("btnSubmit");
+let winner = false;
 
 function getRandomInt(min, max) {
   min = Math.ceil(min);
@@ -14,7 +15,6 @@ function Player(name, marker) {
 
 function gameBoard() {
   let board = [];
-  let winner = false;
 
   const placeMarker = (position, marker) => {
     if (board[position] == null) {
@@ -43,7 +43,7 @@ function gameBoard() {
         [2, 4, 6],
       ];
       for (let marker of winningMarker) {
-        for (const pattern of winPattern) {
+        for (let pattern of winPattern) {
           if (pattern.every((item) => board[item] == marker)) {
             console.log("The winner is: " + marker);
             winner = true;
@@ -65,14 +65,15 @@ function gameBoard() {
 
   const resetBoard = () => {
     board = Array(9).fill(null);
-    console.log("Board has been reset.");
+    console.warn("Board has been reset.");
     console.log(board);
   };
 
-  return { board, placeMarker, checkWin, resetBoard, winner };
+  return { board, placeMarker, checkWin, resetBoard };
 }
 
 const gameManager = () => {
+  let playerChoice;
   const GameBoard = gameBoard();
 
   let players = {
@@ -84,48 +85,63 @@ const gameManager = () => {
     console.log("Did anyone win: " + GameBoard.winner);
 
     if (!GameBoard.winner) {
-      let playerChoice = txtField.value;
       return new Promise((resolve, reject) => {
-        btnSubmit.addEventListener("click", () => {
+        const handleClick = () => {
           playerChoice = txtField.value;
           txtField.value = "";
+
+          btnSubmit.removeEventListener("click", handleClick);
           if (playerChoice === "reset") {
             let confirmation = prompt("Are you sure you wish to RESET?", "y");
 
             if (confirmation == "yes" || confirmation == "y") {
-              resolve(GameBoard.resetBoard());
+              GameBoard.resetBoard();
+              reject();
             }
           } else {
-            "click",
-              resolve(
-                GameBoard.placeMarker(playerChoice, "X"),
-                (players.player = false),
-                (players.bot = true),
-                turnManager()
-              );
+            if (GameBoard.placeMarker(playerChoice, "X")) {
+              players.player = false;
+              players.bot = true;
+              resolve();
+            } else {
+              reject("Invalid Move");
+              playerTurn();
+            }
           }
-        });
-      });
+        };
+        btnSubmit.addEventListener("click", handleClick);
+      })
+        .then(turnManager)
+        .catch(console.error);
     }
   }
 
   function botTurn() {
-    let playBotTurn = GameBoard.placeMarker(getRandomInt(0, 8), "O");
+    let botPlayed = false;
 
-    if (playBotTurn == false) {
-      console.error("Playing again since picked a full place last time.");
-      playBotTurn;
+    while (!botPlayed) {
+      let randomPosition = getRandomInt(0, 8);
+      botPlayed = GameBoard.placeMarker(randomPosition, "O");
+
+      if (!botPlayed) {
+        console.error(
+          "Position " + randomPosition + " is already taken. Trying again."
+        );
+      }
     }
+
     players.bot = false;
     players.player = true;
     turnManager();
   }
 
   function turnManager() {
-    if (players.player == true) {
-      playerTurn();
-    } else if (players.bot == true) {
-      botTurn();
+    if (!winner) {
+      if (players.player == true) {
+        playerTurn();
+      } else if (players.bot == true) {
+        botTurn();
+      }
     }
   }
 
@@ -138,12 +154,3 @@ const gameManager = () => {
 };
 
 gameManager().startGame();
-// gameBoard.placeMarker(0, "X");
-// gameManager.botTurn();
-// gameBoard.placeMarker(1, "X");
-// gameBoard.placeMarker(2, "O");
-// gameBoard.placeMarker(3, "X");
-// gameBoard.placeMarker(4, "O");
-// gameBoard.placeMarker(5, "X");
-// gameBoard.placeMarker(6, "O");
-// gameBoard.placeMarker(7, "O");
