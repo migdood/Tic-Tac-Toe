@@ -28,6 +28,43 @@ main {
 
 #Main-Grid {
   border: 1px solid red;
-  height: 300px;
-  width: 300px;
+  margin-top: 20px;
+  height: 450px;
+  width: 450px;
+  display: grid;
+  grid-template-areas:
+    "button0 button1 button2"
+    "button3 button4 button5"
+    "button6 button7 button8";
+}
+.button {
+  color: black;
+  font-size: 90px;
+}
+#button0 {
+  grid-area: button0;
+}
+#button1 {
+  grid-area: button1;
+}
+#button2 {
+  grid-area: button2;
+}
+#button3 {
+  grid-area: button3;
+}
+#button4 {
+  grid-area: button4;
+}
+#button5 {
+  grid-area: button5;
+}
+#button6 {
+  grid-area: button6;
+}
+#button7 {
+  grid-area: button7;
+}
+#button8 {
+  grid-area: button8;
 }

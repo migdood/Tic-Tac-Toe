@@ -1,16 +1,19 @@
-const txtField = document.getElementById("textField");
-const btnSubmit = document.getElementById("btnSubmit");
+const buttons = Array.from(document.querySelectorAll("button"));
+
+// const button1 = document.getElementById("button1");
+// const button2 = document.getElementById("button2");
+// const button3 = document.getElementById("button3");
+// const button4 = document.getElementById("button4");
+// const button5 = document.getElementById("button5");
+// const button6 = document.getElementById("button6");
+// const button7 = document.getElementById("button7");
+// const button8 = document.getElementById("button8");
 let winner = false;
 
 function getRandomInt(min, max) {
   min = Math.ceil(min);
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-function Player(name, marker) {
-  this.Name = name;
-  this.Marker = marker;
 }
 
 function gameBoard() {
@@ -82,37 +85,30 @@ const gameManager = () => {
   };
 
   function playerTurn() {
-    console.log("Did anyone win: " + GameBoard.winner);
+    console.log("Did anyone win: " + winner);
 
-    if (!GameBoard.winner) {
-      return new Promise((resolve, reject) => {
-        const handleClick = () => {
-          playerChoice = txtField.value;
-          txtField.value = "";
+    if (!winner) {
+      const handleClick = (event) => {
+        const playerChoice = parseInt(
+          event.target.id.replace("button", ""),
+          10
+        );
 
-          btnSubmit.removeEventListener("click", handleClick);
-          if (playerChoice === "reset") {
-            let confirmation = prompt("Are you sure you wish to RESET?", "y");
+        if (GameBoard.placeMarker(playerChoice, "X")) {
+          players.player = false;
+          players.bot = true;
+          buttons.forEach((button) =>
+            button.removeEventListener("click", handleClick)
+          );
+          turnManager();
+        } else {
+          console.error("Invalid Move");
+        }
+      };
 
-            if (confirmation == "yes" || confirmation == "y") {
-              GameBoard.resetBoard();
-              reject();
-            }
-          } else {
-            if (GameBoard.placeMarker(playerChoice, "X")) {
-              players.player = false;
-              players.bot = true;
-              resolve();
-            } else {
-              reject("Invalid Move");
-              playerTurn();
-            }
-          }
-        };
-        btnSubmit.addEventListener("click", handleClick);
-      })
-        .then(turnManager)
-        .catch(console.error);
+      buttons.forEach((button) =>
+        button.addEventListener("click", handleClick)
+      );
     }
   }
 
@@ -153,4 +149,5 @@ const gameManager = () => {
   return { playerTurn, botTurn, turnManager, startGame };
 };
 
+function ScreenController() {}
 gameManager().startGame();
