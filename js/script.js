@@ -1,57 +1,58 @@
 const buttons = Array.from(document.querySelectorAll("button"));
 let winner = false;
+let draw = false;
 
 function getRandomInt(min, max) {
   min = Math.ceil(min);
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
-// TODO: create a screen reader that reads the board and places the X and O into the buttons and doesn't over ride them. simply make it read what the board is displaying.
+// TODO: Clean up responsive Design, add text at the bottom that says who won, make a button appear after win or draw to play again.
 function gameBoard() {
   let board = [];
 
   const placeMarker = (position, marker) => {
-    if (board[position] == null) {
+    if (board[position] != null) {
+      console.error("Couldn't add to the board.");
+      return false;
+    } else {
       board[position] = marker;
       console.log(marker + " Added to the board.");
       console.log(board);
+      screenWriter();
       checkWin();
       return true;
-    } else {
-      console.error("Couldn't add to the board.");
-      return false;
     }
   };
 
   const checkWin = () => {
     let winningMarker = ["X", "O"];
-    if (!winner) {
-      const winPattern = [
-        [0, 1, 2],
-        [3, 4, 5],
-        [6, 7, 8],
-        [0, 3, 6],
-        [1, 4, 7],
-        [2, 5, 8],
-        [0, 4, 8],
-        [2, 4, 6],
-      ];
-      for (let marker of winningMarker) {
-        for (let pattern of winPattern) {
-          if (pattern.every((item) => board[item] == marker)) {
-            console.log("The winner is: " + marker);
-            winner = true;
-            return marker;
-          }
+    const winPattern = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6],
+    ];
+
+    for (let marker of winningMarker) {
+      for (let pattern of winPattern) {
+        if (pattern.every((item) => board[item] == marker)) {
+          console.log("The winner is: " + marker);
+          winner = true;
+          return marker;
         }
       }
-      checkDraw();
     }
+    checkDraw();
   };
 
   const checkDraw = () => {
     if (!board.includes(null) && !winner) {
-      return "DRAW";
+      return (draw = true);
     } else {
       return console.log("Keep Playing");
     }
@@ -63,7 +64,14 @@ function gameBoard() {
     console.log(board);
   };
 
-  return { board, placeMarker, checkWin, resetBoard };
+  function screenWriter() {
+    for (let i = 0; i < board.length; i++) {
+      // If statement to display null values as empty strings
+      buttons[i].innerHTML = board[i] !== null ? board[i] : "";
+    }
+  }
+
+  return { board, placeMarker, checkWin, resetBoard, screenWriter };
 }
 
 const gameManager = () => {
@@ -77,29 +85,22 @@ const gameManager = () => {
   function playerTurn() {
     console.log("Did anyone win: " + winner);
 
-    if (!winner) {
-      const handleClick = (event) => {
-        const playerChoice = parseInt(
-          event.target.id.replace("button", ""),
-          10
+    const handleClick = (event) => {
+      const playerChoice = parseInt(event.target.id.replace("button", ""), 10);
+
+      if (GameBoard.placeMarker(playerChoice, "X")) {
+        players.player = false;
+        players.bot = true;
+        buttons.forEach((button) =>
+          button.removeEventListener("click", handleClick)
         );
+        turnManager();
+      } else {
+        console.error("Invalid Move");
+      }
+    };
 
-        if (GameBoard.placeMarker(playerChoice, "X")) {
-          players.player = false;
-          players.bot = true;
-          buttons.forEach((button) =>
-            button.removeEventListener("click", handleClick)
-          );
-          turnManager();
-        } else {
-          console.error("Invalid Move");
-        }
-      };
-
-      buttons.forEach((button) =>
-        button.addEventListener("click", handleClick)
-      );
-    }
+    buttons.forEach((button) => button.addEventListener("click", handleClick));
   }
 
   function botTurn() {
@@ -122,12 +123,14 @@ const gameManager = () => {
   }
 
   function turnManager() {
-    if (!winner) {
-      if (players.player == true) {
-        playerTurn();
-      } else if (players.bot == true) {
-        botTurn();
-      }
+    if (winner || draw) {
+      return;
+    }
+
+    if (players.player) {
+      playerTurn();
+    } else if (players.bot) {
+      botTurn();
     }
   }
 
@@ -140,3 +143,10 @@ const gameManager = () => {
 };
 
 gameManager().startGame();
+
+// Footer Stuff
+const footerPicture = document.getElementById("footerPicture");
+
+footerPicture.addEventListener("mouseenter", () => {
+  footerPicture.animate({ transform: ["rotate(0deg)", "rotate(360deg)"] }, 550);
+});

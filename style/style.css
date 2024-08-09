@@ -23,11 +23,10 @@ main {
 
 #Site-Title {
   font-size: 80px;
-  color: red;
+  color: whitesmoke;
 }
 
 #Main-Grid {
-  border: 1px solid red;
   margin-top: 20px;
   height: 450px;
   width: 450px;
@@ -39,7 +38,14 @@ main {
 }
 .button {
   color: black;
+  background-color: white;
   font-size: 90px;
+  min-width: 150px;
+  min-height: 150px;
+  border-radius: 20px;
+}
+.button:hover {
+  background-color: white;
 }
 #button0 {
   grid-area: button0;
@@ -67,4 +73,70 @@ main {
 }
 #button8 {
   grid-area: button8;
+}
+
+@media only screen and (max-width: 450px) {
+  #Site-Title {
+    font-size: 60px;
+    color: whitesmoke;
+  }
+
+  main {
+    width: 400px;
+  }
+
+  #Main-Grid {
+    margin-top: 20px;
+    width: 410px;
+    height: 410px;
+    display: grid;
+    grid-template-areas:
+      "button0 button1 button2"
+      "button3 button4 button5"
+      "button6 button7 button8";
+  }
+
+  .button {
+    color: black;
+    background-color: white;
+    font-size: 40px;
+    min-width: 140px;
+    max-width: 140px;
+    min-height: 140px;
+    max-height: 140px;
+    border-radius: 20px;
+  }
+
+  footer {
+    font-size: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    /* bottom: 0px; */
+    /* width: 90%; */
+    height: 2.5rem;
+    background-color: transparent;
+    /* padding: 20px 0; */
+  }
+}
+
+/* FOOTER STUFF */
+footer {
+  font-size: 36px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  bottom: 30px;
+  width: 99%;
+  height: 2.5rem;
+  background-color: transparent;
+  /* padding: 20px 0; */
+}
+
+footer img {
+  width: 90px;
+  height: auto;
+  filter: invert();
 }
