@@ -1,13 +1,16 @@
+// ===================
+// Variabls
+// ===================
+const overlay = document.getElementById("overlay");
+const playButton = document.getElementById("play-btn");
+const overlayHeader = document.getElementById("overlay-header");
 const buttons = Array.from(document.querySelectorAll("button"));
+const footerPicture = document.getElementById("footerPicture");
 let winner = false;
 let draw = false;
-
-function getRandomInt(min, max) {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-// TODO: Clean up responsive Design, add text at the bottom that says who won, make a button appear after win or draw to play again.
+// ===================
+// GameBoard Logic
+// ===================
 function gameBoard() {
   let board = [];
 
@@ -43,6 +46,7 @@ function gameBoard() {
         if (pattern.every((item) => board[item] == marker)) {
           console.log("The winner is: " + marker);
           winner = true;
+          winnerOverlay(marker);
           return marker;
         }
       }
@@ -52,6 +56,8 @@ function gameBoard() {
 
   const checkDraw = () => {
     if (!board.includes(null) && !winner) {
+      console.log("It's a draw.");
+      winnerOverlay();
       return (draw = true);
     } else {
       return console.log("Keep Playing");
@@ -60,6 +66,9 @@ function gameBoard() {
 
   const resetBoard = () => {
     board = Array(9).fill(null);
+    winner = false;
+    draw = false;
+    buttons.forEach((button) => (button.innerText = ""));
     console.warn("Board has been reset.");
     console.log(board);
   };
@@ -67,13 +76,15 @@ function gameBoard() {
   function screenWriter() {
     for (let i = 0; i < board.length; i++) {
       // If statement to display null values as empty strings
-      buttons[i].innerHTML = board[i] !== null ? board[i] : "";
+      buttons[i].innerText = board[i] !== null ? board[i] : "";
     }
   }
 
   return { board, placeMarker, checkWin, resetBoard, screenWriter };
 }
-
+// ===================
+// GameManager
+// ===================
 const gameManager = () => {
   const GameBoard = gameBoard();
 
@@ -141,11 +152,41 @@ const gameManager = () => {
 
   return { playerTurn, botTurn, turnManager, startGame };
 };
+// ===================
+// Functions
+// ===================
+function removeOverlay() {
+  overlay.style.transform = "translateY(-100%)";
+  setTimeout(() => {
+    gameManager().startGame();
+    playButton.removeEventListener("click", removeOverlay);
+  }, 100);
+}
 
-gameManager().startGame();
+function winnerOverlay(marker = "default") {
+  overlay.style.transform = "translateY(0%)";
+  playButton.innerText = "Play Again";
+  playButton.addEventListener("click", removeOverlay);
+  if (marker == "X") {
+    overlayHeader.innerText = `${marker} is the winner!!! \n You ROCK!!!`;
+  } else if (marker == "O") {
+    overlayHeader.innerText = `${marker} is the winner!!! \n You STINK!!!`;
+  } else {
+    overlayHeader.innerText = `It's a boring ol' draw...`;
+  }
+}
 
-// Footer Stuff
-const footerPicture = document.getElementById("footerPicture");
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+// ===================
+// EventListeners
+// ===================
+playButton.addEventListener("click", removeOverlay);
+
+document.addEventListener("DOMContentLoaded", () => gameManager().startGame());
 
 footerPicture.addEventListener("mouseenter", () => {
   footerPicture.animate({ transform: ["rotate(0deg)", "rotate(360deg)"] }, 550);
