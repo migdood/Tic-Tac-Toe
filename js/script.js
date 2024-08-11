@@ -1,57 +1,64 @@
+// ===================
+// Variabls
+// ===================
+const overlay = document.getElementById("overlay");
+const playButton = document.getElementById("play-btn");
+const overlayHeader = document.getElementById("overlay-header");
 const buttons = Array.from(document.querySelectorAll("button"));
+const footerPicture = document.getElementById("footerPicture");
 let winner = false;
-
-function getRandomInt(min, max) {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-// TODO: create a screen reader that reads the board and places the X and O into the buttons and doesn't over ride them. simply make it read what the board is displaying.
+let draw = false;
+// ===================
+// GameBoard Logic
+// ===================
 function gameBoard() {
   let board = [];
 
   const placeMarker = (position, marker) => {
-    if (board[position] == null) {
+    if (board[position] != null) {
+      console.error("Couldn't add to the board.");
+      return false;
+    } else {
       board[position] = marker;
       console.log(marker + " Added to the board.");
       console.log(board);
+      screenWriter();
       checkWin();
       return true;
-    } else {
-      console.error("Couldn't add to the board.");
-      return false;
     }
   };
 
   const checkWin = () => {
     let winningMarker = ["X", "O"];
-    if (!winner) {
-      const winPattern = [
-        [0, 1, 2],
-        [3, 4, 5],
-        [6, 7, 8],
-        [0, 3, 6],
-        [1, 4, 7],
-        [2, 5, 8],
-        [0, 4, 8],
-        [2, 4, 6],
-      ];
-      for (let marker of winningMarker) {
-        for (let pattern of winPattern) {
-          if (pattern.every((item) => board[item] == marker)) {
-            console.log("The winner is: " + marker);
-            winner = true;
-            return marker;
-          }
+    const winPattern = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6],
+    ];
+
+    for (let marker of winningMarker) {
+      for (let pattern of winPattern) {
+        if (pattern.every((item) => board[item] == marker)) {
+          console.log("The winner is: " + marker);
+          winner = true;
+          winnerOverlay(marker);
+          return marker;
         }
       }
-      checkDraw();
     }
+    checkDraw();
   };
 
   const checkDraw = () => {
     if (!board.includes(null) && !winner) {
-      return "DRAW";
+      console.log("It's a draw.");
+      winnerOverlay();
+      return (draw = true);
     } else {
       return console.log("Keep Playing");
     }
@@ -59,13 +66,25 @@ function gameBoard() {
 
   const resetBoard = () => {
     board = Array(9).fill(null);
+    winner = false;
+    draw = false;
+    buttons.forEach((button) => (button.innerText = ""));
     console.warn("Board has been reset.");
     console.log(board);
   };
 
-  return { board, placeMarker, checkWin, resetBoard };
-}
+  function screenWriter() {
+    for (let i = 0; i < board.length; i++) {
+      // If statement to display null values as empty strings
+      buttons[i].innerText = board[i] !== null ? board[i] : "";
+    }
+  }
 
+  return { board, placeMarker, checkWin, resetBoard, screenWriter };
+}
+// ===================
+// GameManager
+// ===================
 const gameManager = () => {
   const GameBoard = gameBoard();
 
@@ -77,29 +96,22 @@ const gameManager = () => {
   function playerTurn() {
     console.log("Did anyone win: " + winner);
 
-    if (!winner) {
-      const handleClick = (event) => {
-        const playerChoice = parseInt(
-          event.target.id.replace("button", ""),
-          10
+    const handleClick = (event) => {
+      const playerChoice = parseInt(event.target.id.replace("button", ""), 10);
+
+      if (GameBoard.placeMarker(playerChoice, "X")) {
+        players.player = false;
+        players.bot = true;
+        buttons.forEach((button) =>
+          button.removeEventListener("click", handleClick)
         );
+        turnManager();
+      } else {
+        console.error("Invalid Move");
+      }
+    };
 
-        if (GameBoard.placeMarker(playerChoice, "X")) {
-          players.player = false;
-          players.bot = true;
-          buttons.forEach((button) =>
-            button.removeEventListener("click", handleClick)
-          );
-          turnManager();
-        } else {
-          console.error("Invalid Move");
-        }
-      };
-
-      buttons.forEach((button) =>
-        button.addEventListener("click", handleClick)
-      );
-    }
+    buttons.forEach((button) => button.addEventListener("click", handleClick));
   }
 
   function botTurn() {
@@ -122,12 +134,14 @@ const gameManager = () => {
   }
 
   function turnManager() {
-    if (!winner) {
-      if (players.player == true) {
-        playerTurn();
-      } else if (players.bot == true) {
-        botTurn();
-      }
+    if (winner || draw) {
+      return;
+    }
+
+    if (players.player) {
+      playerTurn();
+    } else if (players.bot) {
+      botTurn();
     }
   }
 
@@ -138,5 +152,42 @@ const gameManager = () => {
 
   return { playerTurn, botTurn, turnManager, startGame };
 };
+// ===================
+// Functions
+// ===================
+function removeOverlay() {
+  overlay.style.transform = "translateY(-100%)";
+  setTimeout(() => {
+    gameManager().startGame();
+    playButton.removeEventListener("click", removeOverlay);
+  }, 100);
+}
 
-gameManager().startGame();
+function winnerOverlay(marker = "default") {
+  overlay.style.transform = "translateY(0%)";
+  playButton.innerText = "Play Again";
+  playButton.addEventListener("click", removeOverlay);
+  if (marker == "X") {
+    overlayHeader.innerText = `${marker} is the winner!!! \n You ROCK!!!`;
+  } else if (marker == "O") {
+    overlayHeader.innerText = `${marker} is the winner!!! \n You STINK!!!`;
+  } else {
+    overlayHeader.innerText = `It's a boring ol' draw...`;
+  }
+}
+
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+// ===================
+// EventListeners
+// ===================
+playButton.addEventListener("click", removeOverlay);
+
+document.addEventListener("DOMContentLoaded", () => gameManager().startGame());
+
+footerPicture.addEventListener("mouseenter", () => {
+  footerPicture.animate({ transform: ["rotate(0deg)", "rotate(360deg)"] }, 550);
+});
